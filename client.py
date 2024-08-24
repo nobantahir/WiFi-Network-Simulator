@@ -7,4 +7,5 @@ class Client(Network):
         self.standard = standard
         self.frequency = frequency
 
-me = Client()    
+me = Client('Client1', 10, 10, 'WiFi6', '2.4/5', True, True, True, 73)    
+print(me.min_rssi)

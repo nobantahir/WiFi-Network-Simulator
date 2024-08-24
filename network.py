@@ -5,7 +5,9 @@ class Network:
         self.support11k = support11k
         self.support11v = support11v
         self.support11r = support11r
-        if min_rssi is not None:
+        if min_rssi is None:
+            self.min_rssi = False
+        else:
             self.min_rssi = min_rssi
     
     def get_x(self):

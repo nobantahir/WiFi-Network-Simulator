@@ -10,5 +10,7 @@ class AccessPoint(Network):
         self.standard = standard
         self.coverage_radius = coverage_radius
         self.device_limit = device_limit
-        if self.min_rssi is not None:
-            self.min_rssi = min_rssi
+            
+me = AccessPoint('AP1', 0, 0, 6, 20, '2.4/5', 'WiFi6', True, True, True, 50, 20, 20)    
+if me.min_rssi:
+    print(me.min_rssi)
