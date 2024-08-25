@@ -19,7 +19,8 @@ def parse_line(line):
     data = line.strip("\n").split(' ')
     acceptable_input(data[0])
     print(data, " length: ", len(data))
-    
+
+# use if variable is False for min rssi  
 
 
 # Main is the Access Controller
