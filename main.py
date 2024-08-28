@@ -82,7 +82,19 @@ def iterate_frequencies(client, access_points, frequency):
                         temp_dict[name] = ap_rssi
     return temp_dict
 
+def best_point(client, access_points):
+    # Standard, Frequency, 11k, 11v, 11r
+    standard = client.get_standard()[-1]
+    frequency = client.get_frequency()
+    k = client.get_support_11k()
+    v = client.get_support_11v()
+    r = client.get_support_11r()
+    
+    
+
 def parse_access_points(client, access_points):
+    print(client.get_frequency())
+    '''
     if client.get_frequency() == '2.4':
         ap_rssi = iterate_frequencies(client, access_points, 2400)
     elif client.get_frequency() == '5':
@@ -93,6 +105,9 @@ def parse_access_points(client, access_points):
         ap_rssi = {**temp24, **temp50}
     
     print(ap_rssi)
+    '''
+    
+
 
 def run_simulation(simulation, access_points):
     for item in simulation:

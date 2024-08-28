@@ -25,8 +25,12 @@ class Network:
         return self.standard
     
     def get_frequency(self):
-        return self.frequency
-    
+        temp_frequencies = self.frequency.split('/')
+        frequencies = [int(x.replace(".", "")) * 1000 if len(x) == 1 else int(x.replace(".", "")) * 100 for x in temp_frequencies]
+        
+        return frequencies
+
+
     def get_support_11k(self):
         return self.support11k
     
