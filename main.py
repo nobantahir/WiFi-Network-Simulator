@@ -94,6 +94,7 @@ def best_point(client, access_points):
 
 def parse_access_points(client, access_points):
     print(client.get_frequency())
+    #update logic here
     '''
     if client.get_frequency() == '2.4':
         ap_rssi = iterate_frequencies(client, access_points, 2400)
