@@ -56,7 +56,7 @@ with open(sim, 'r') as sim_file:
 def iterate_frequencies(client, access_points, frequency):
     """This function will iterate over access points based on frequencies available and 
     add them to a dictionary if it is possible for them to be connected to. If the rssi is false
-    then the client is out of the acces points range.
+    then the client is out of the access points range.
 
     Args:
         client (object): the client object
@@ -67,16 +67,19 @@ def iterate_frequencies(client, access_points, frequency):
         dict: containing the {key: value} where key is the str({access point} {frequency}) and value is the rssi
     """
     temp_dict = {}
+    client_rssi = client.get_min_rssi()
     for ap in access_points:
-        rssi = ap.calc_rssi(client.get_x(), client.get_y(), frequency)
-        if rssi is not False:
-            rssi = abs(rssi)
-            name = f"{ap.get_name()} {frequency}"
-            if ap.min_rssi is False:
-                temp_dict[name] = rssi
-            else:
-                if rssi < ap.min_rssi:
-                    temp_dict[name] = rssi
+        ap_rssi = ap.calc_rssi(client.get_x(), client.get_y(), frequency)
+        # If the frequency is beyond client spec, we will ignore it.
+        if ap_rssi < client_rssi:
+            if ap_rssi is not False:
+                ap_rssi = abs(ap_rssi)
+                name = f"{ap.get_name()} {frequency}"
+                if ap.min_rssi is False:
+                    temp_dict[name] = ap_rssi
+                else:
+                    if ap_rssi < ap.min_rssi:
+                        temp_dict[name] = ap_rssi
     return temp_dict
 
 def parse_access_points(client, access_points):
