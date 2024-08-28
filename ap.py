@@ -30,5 +30,5 @@ class AccessPoint(Network):
     
     def calc_rssi(self, x, y, frequency):
         distance = self.calc_distance(x, y)
-        print("Distance", distance, " Coverage Radius", self.get_coverage_radius())
+        #print("Distance", distance, " Coverage Radius", self.get_coverage_radius())
         return self.power_level - (20 * math.log10(distance)) - (20 * math.log10(frequency)) - 32.44

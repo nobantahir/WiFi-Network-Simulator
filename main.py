@@ -2,24 +2,19 @@ import math
 from ap import AccessPoint
 from client import Client
 
-test_power = 50
-test_frequency = 5000
-test_distance = 10
-
-calc_rssi = test_power - (20 * math.log10(test_distance)) - (20 * math.log10(test_frequency)) - 32.44
-
-#print(calc_rssi)
 
 def acceptable_input(zero):
     assert zero in ["AP", "CLIENT", "MOVE"], "Error, input does not match expected."
     return zero
 
+
 def parse_line(line):
     data = line.strip("\n").split(' ')
     line_call = acceptable_input(data[0])
+    
     if line_call == "AP":
         if len(data) == 14:
-            ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], bool(data[8]), bool(data[9]), bool(data[10]), int(data[11]), int(data[12]), int(calc_rssi))
+            ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], bool(data[8]), bool(data[9]), bool(data[10]), int(data[11]), int(data[12]), int(data[13]))
             access_points.append(ap)
         elif len(data) == 13:
             ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], bool(data[8]), bool(data[9]), bool(data[10]), int(data[11]), int(data[12]))
@@ -50,28 +45,42 @@ with open(sim, 'r') as sim_file:
     for line in sim_file:
         parse_line(line)
 
-print(f"Number of Access Points: {len(access_points)}")
-print(access_points)
+#print(f"Number of Access Points: {len(access_points)}")
+#print(access_points)
 
 
-print(simulation)
-print(simulation[0].get_frequency())
-print(access_points[0].calc_rssi(simulation[0].get_x(), simulation[0].get_y(), 2400))
+#print(simulation)
+#print(simulation[0].get_frequency())
+#print(access_points[0].calc_rssi(simulation[0].get_x(), simulation[0].get_y(), 2400))
 
 def iterate_frequencies(client, access_points, frequency):
+    """This function will iterate over access points based on frequencies available and 
+    add them to a dictionary if it is possible for them to be connected to.
+
+    Args:
+        client (object): the client object
+        access_points (list of objects): a list of access points
+        frequency (int): an int representing the frequency
+
+    Returns:
+        dict: containing the {key: value} where key is the str({access point} {frequency}) and value is the rssi
+    """
     temp_dict = {}
     for ap in access_points:
+        rssi = abs(ap.calc_rssi(client.get_x(), client.get_y(), frequency))
         name = f"{ap.get_name()} {frequency}"
-        print("Distance Calc", abs(ap.calc_rssi(client.get_x(), client.get_y(), frequency)))
-        temp_dict[name] = abs(ap.calc_rssi(client.get_x(), client.get_y(), frequency))
+        if ap.min_rssi is False:
+            temp_dict[name] = rssi
+        else:
+            if rssi < ap.min_rssi:
+                temp_dict[name] = rssi
     return temp_dict
 
 def parse_access_points(client, access_points):
-    ap_rssi = {}
     if client.get_frequency() == '2.4':
-        temp24 = iterate_frequencies(client, access_points, 2400)
+        ap_rssi = iterate_frequencies(client, access_points, 2400)
     elif client.get_frequency() == '5':
-        temp50 = iterate_frequencies(client, access_points, 5000)
+        ap_rssi = iterate_frequencies(client, access_points, 5000)
     elif client.get_frequency() == '2.4/5':
         temp24 = iterate_frequencies(client, access_points, 2400)
         temp50 = iterate_frequencies(client, access_points, 5000)
@@ -82,7 +91,6 @@ def parse_access_points(client, access_points):
 def run_simulation(simulation, access_points):
     for item in simulation:
         if type(item) == Client:
-            print("parse")
             parse_access_points(item, access_points)     
         else:
             pass
