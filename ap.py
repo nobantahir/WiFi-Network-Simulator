@@ -29,6 +29,9 @@ class AccessPoint(Network):
         return math.sqrt((self.x - x)**2 + (self.y - y)**2)
     
     def calc_rssi(self, x, y, frequency):
+    # If the client is out of range it will return false.
         distance = self.calc_distance(x, y)
-        #print("Distance", distance, " Coverage Radius", self.get_coverage_radius())
-        return self.power_level - (20 * math.log10(distance)) - (20 * math.log10(frequency)) - 32.44
+        if distance < self.get_coverage_radius():
+            return self.power_level - (20 * math.log10(distance)) - (20 * math.log10(frequency)) - 32.44
+        else:
+            return False
