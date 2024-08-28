@@ -11,6 +11,9 @@ class Network:
             self.min_rssi = False
         else:
             self.min_rssi = min_rssi
+            
+        self.step = 1
+        self.log = ""
     
     def get_x(self):
         return self.x

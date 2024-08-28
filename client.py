@@ -6,3 +6,8 @@ class Client(Network):
         self.name = name
         self.ap_scores = {}
 
+    def get_name(self):
+        return self.name
+    
+    def get_ap_scores(self):
+        return self.ap_scores

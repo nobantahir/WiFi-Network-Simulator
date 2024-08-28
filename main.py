@@ -52,8 +52,39 @@ with open(sim, 'r') as sim_file:
 
 print(f"Number of Access Points: {len(access_points)}")
 print(access_points)
-print(clients)
-print(moves)
+
 
 print(simulation)
 print(simulation[0].get_frequency())
+print(access_points[0].calc_rssi(simulation[0].get_x(), simulation[0].get_y(), 2400))
+
+def iterate_frequencies(client, access_points, frequency):
+    temp_dict = {}
+    for ap in access_points:
+        name = f"{ap.get_name()} {frequency}"
+        print("Distance Calc", abs(ap.calc_rssi(client.get_x(), client.get_y(), frequency)))
+        temp_dict[name] = abs(ap.calc_rssi(client.get_x(), client.get_y(), frequency))
+    return temp_dict
+
+def parse_access_points(client, access_points):
+    ap_rssi = {}
+    if client.get_frequency() == '2.4':
+        temp24 = iterate_frequencies(client, access_points, 2400)
+    elif client.get_frequency() == '5':
+        temp50 = iterate_frequencies(client, access_points, 5000)
+    elif client.get_frequency() == '2.4/5':
+        temp24 = iterate_frequencies(client, access_points, 2400)
+        temp50 = iterate_frequencies(client, access_points, 5000)
+        ap_rssi = {**temp24, **temp50}
+    
+    print(ap_rssi)
+
+def run_simulation(simulation, access_points):
+    for item in simulation:
+        if type(item) == Client:
+            print("parse")
+            parse_access_points(item, access_points)     
+        else:
+            pass
+
+run_simulation(simulation, access_points)
