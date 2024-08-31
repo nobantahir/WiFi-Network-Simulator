@@ -1,5 +1,6 @@
 AP AP1 0 0 6 80 2.4/5 WiFi6 True True True 50 10 75
 AP AP2 100 100 6 20 5 WiFi7 False True False 60 60
+
 AP AP3 25 50 3 90 2.4 WiFi6 True False False 50 10 75
 CLIENT Client1 10 10 WiFi6 2.4/5 True True False 73
 MOVE Client1 10 9
