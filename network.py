@@ -22,7 +22,7 @@ class Network:
         return self.y
     
     def get_standard(self):
-        return self.standard
+        return int(self.standard[-1])
     
     def get_frequency(self):
         temp_frequencies = self.frequency.split('/')

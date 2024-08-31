@@ -64,7 +64,7 @@ def iterate_frequencies(client, access_points, frequency):
         frequency (int): an int representing the frequency
 
     Returns:
-        dict: containing the {key: value} where key is the str({access point} {frequency}) and value is the rssi
+        dict: containing the {key: value} where key is tuple (access point, frequency) and value is the rssi
     """
     temp_dict = {}
     client_rssi = client.get_min_rssi()
@@ -74,7 +74,7 @@ def iterate_frequencies(client, access_points, frequency):
         if ap_rssi < client_rssi:
             if ap_rssi is not False:
                 ap_rssi = abs(ap_rssi)
-                name = f"{ap.get_name()} {frequency}"
+                name = (ap, frequency) #(f"{ap.get_name()} {frequency}")
                 if ap.min_rssi is False:
                     temp_dict[name] = ap_rssi
                 else:
@@ -82,31 +82,52 @@ def iterate_frequencies(client, access_points, frequency):
                         temp_dict[name] = ap_rssi
     return temp_dict
 
-def best_point(client, access_points):
+def check_standard(client_standard, access_points):
+    """This function will check if the client's standard is supported by any access point.
+    """
+    compatiable = []
+    for ap in access_points:
+        if ap.get_standard() >= client_standard:
+            compatiable.append(ap)
+    if len(compatiable) != 0:
+        return compatiable
+    return False
+    
+def best_point(client, access_points, ap_rssi):
     # Standard, Frequency, 11k, 11v, 11r
-    standard = client.get_standard()[-1]
+    standard = client.get_standard()
     frequency = client.get_frequency()
     k = client.get_support_11k()
     v = client.get_support_11v()
     r = client.get_support_11r()
     
+    standard_met = check_standard(standard, access_points)
+    if standard_met:
+        print(standard_met)
     
 
 def parse_access_points(client, access_points):
-    print(client.get_frequency())
-    #update logic here
-    '''
-    if client.get_frequency() == '2.4':
-        ap_rssi = iterate_frequencies(client, access_points, 2400)
-    elif client.get_frequency() == '5':
-        ap_rssi = iterate_frequencies(client, access_points, 5000)
-    elif client.get_frequency() == '2.4/5':
-        temp24 = iterate_frequencies(client, access_points, 2400)
-        temp50 = iterate_frequencies(client, access_points, 5000)
-        ap_rssi = {**temp24, **temp50}
-    
+    """This function will parse the access points for the client and return a dictionary
+    with the key as the str({access point} {frequency}) and value as the rssi.
+
+    Args:
+        client (object): the client object
+        access_points (list of objects): a list of access points
+    Returns:
+        dict: containing the {key: value} where key is the str({access point} {frequency}) and value is the rssi
+    """
+    if len(client.get_frequency()) == 1:
+        ap_rssi = iterate_frequencies(client, access_points, int(client.get_frequency()[0]))
+    else:
+        ap_rssi_list = []
+        for frequency in client.get_frequency():
+            ap_rssi = iterate_frequencies(client, access_points, int(frequency))
+            if len(ap_rssi) != 0:
+                ap_rssi_list.append(ap_rssi)
+        ap_rssi = {k: v for dictionary in ap_rssi_list for k, v in dictionary.items()}
+
     print(ap_rssi)
-    '''
+    best_point(client, access_points, ap_rssi)
     
 
 

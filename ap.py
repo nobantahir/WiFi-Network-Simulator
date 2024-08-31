@@ -22,6 +22,9 @@ class AccessPoint(Network):
     def get_coverage_radius(self):
         return self.coverage_radius
     
+    def get_standard(self):
+        return super().get_standard()
+
     def get_device_limit(self):
         return self.device_limit
     
