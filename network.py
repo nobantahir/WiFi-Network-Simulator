@@ -1,12 +1,23 @@
 class Network:
-    def __init__(self, x: int, y: int, standard: str, frequency: str, support11k: bool, support11v: bool, support11r: bool, min_rssi = None):
+    def __init__(self, x: int, y: int, standard: str, frequency: str, support11k: str, support11v: str, support11r: str, min_rssi = None):
         self.x = x
         self.y = y
         self.standard = standard
         self.frequency = frequency
-        self.support11k = support11k
-        self.support11v = support11v
-        self.support11r = support11r
+        
+        if support11k.upper() == "TRUE":
+            self.support11k = True
+        elif support11k.upper() == "FALSE":
+            self.support11k = False
+        if support11v.upper() == "TRUE":
+            self.support11v = True
+        elif support11v.upper() == "FALSE":
+            self.support11v = False
+        if support11r.upper() == "TRUE":
+            self.support11r = True
+        elif support11r.upper() == "FALSE":
+            self.support11r = False
+
         if min_rssi is None:
             self.min_rssi = False
         else:

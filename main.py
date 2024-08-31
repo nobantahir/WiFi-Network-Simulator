@@ -11,17 +11,16 @@ def acceptable_input(zero):
 def parse_line(line):
     data = line.strip("\n").split(' ')
     line_call = acceptable_input(data[0])
-    
     if line_call == "AP":
         if len(data) == 14:
-            ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], bool(data[8]), bool(data[9]), bool(data[10]), int(data[11]), int(data[12]), int(data[13]))
+            ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], (data[8]), (data[9]), (data[10]), int(data[11]), int(data[12]), int(data[13]))
             access_points.append(ap)
         elif len(data) == 13:
-            ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], bool(data[8]), bool(data[9]), bool(data[10]), int(data[11]), int(data[12]))
+            ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], (data[8]), (data[9]), (data[10]), int(data[11]), int(data[12]))
             access_points.append(ap)
     elif line_call == "CLIENT":
         if len(data) == 10:
-            client = Client(data[1], int(data[2]), int(data[3]), data[4], data[5], bool(data[6]), bool(data[7]), bool(data[8]), int(data[9]))
+            client = Client(data[1], int(data[2]), int(data[3]), data[4], data[5], (data[6]), (data[7]), (data[8]), int(data[9]))
             clients.append(client)
             simulation.append(client)
     elif line_call == "MOVE":
@@ -87,16 +86,15 @@ def check_standard(client_standard, access_points):
     """
     compatiable = []
     for ap in access_points:
-        if ap.get_standard() >= client_standard:
+        if ap[0].get_standard() >= client_standard:
             compatiable.append(ap)
     if len(compatiable) != 0:
         return compatiable
     return False
-    
-def best_point(client, access_points, ap_rssi):
+
+def best_point(client, access_points):
     # Standard, Frequency, 11k, 11v, 11r
     standard = client.get_standard()
-    frequency = client.get_frequency()
     k = client.get_support_11k()
     v = client.get_support_11v()
     r = client.get_support_11r()
@@ -104,6 +102,29 @@ def best_point(client, access_points, ap_rssi):
     standard_met = check_standard(standard, access_points)
     if standard_met:
         print(standard_met)
+    else:
+        pass
+    
+    roaming = {}
+    
+    for ap in standard_met:
+        roaming[ap] = 0
+    print(roaming)
+    
+    for ap in standard_met:
+        #print(ap[0].get_support_11k())
+        
+        if k and ap[0].get_support_11k():
+            roaming[ap] += 1
+        if v and ap[0].get_support_11v():
+            roaming[ap] += 1
+            
+        #if r and ap[0].get_support_11r():
+            #roaming[ap] += 1
+            
+    print(roaming)
+    
+    
     
 
 def parse_access_points(client, access_points):
@@ -126,8 +147,10 @@ def parse_access_points(client, access_points):
                 ap_rssi_list.append(ap_rssi)
         ap_rssi = {k: v for dictionary in ap_rssi_list for k, v in dictionary.items()}
 
-    print(ap_rssi)
-    best_point(client, access_points, ap_rssi)
+    # access_points is filtered and aps that are not within rssi are removed from the list.
+    access_points = [x for x in ap_rssi]
+
+    best_point(client, access_points)
     
 
 
