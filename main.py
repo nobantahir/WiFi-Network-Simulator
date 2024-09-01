@@ -48,13 +48,6 @@ with open(sim, 'r') as sim_file:
     for line in sim_file:
         parse_line(line)
 
-#print(f"Number of Access Points: {len(access_points)}")
-#print(access_points)
-
-
-#print(simulation)
-#print(simulation[0].get_frequency())
-#print(access_points[0].calc_rssi(simulation[0].get_x(), simulation[0].get_y(), 2400))
 
 def iterate_frequencies(client, access_points, frequency):
     """This function will iterate over access points based on frequencies available and 
@@ -96,6 +89,16 @@ def check_standard(client_standard, access_points):
         return compatiable
     return False
 
+def check_power(access_points):
+    """This function will check for the highest power level.
+    """
+    power_score = {}
+    for ap in access_points:
+        power_score[ap] = ap[0].get_power_level()
+    
+    print(power_score)
+
+
 def best_point(client, access_points):
     # Standard, Frequency, 11k, 11v, 11r
     standard = client.get_standard()
@@ -104,16 +107,15 @@ def best_point(client, access_points):
     r = client.get_support_11r()
     
     standard_met = check_standard(standard, access_points)
-    if standard_met:
-        print(standard_met)
-    else:
-        pass
+    if standard_met and len(standard_met) == 1:
+        return standard_met[0]
+    
     
     roaming = {}
     
     for ap in standard_met:
         roaming[ap] = 0
-    print(roaming)
+    #print(roaming)
     
     for ap in standard_met:
         #print(ap[0].get_support_11k())
@@ -122,13 +124,18 @@ def best_point(client, access_points):
             roaming[ap] += 1
         if v and ap[0].get_support_11v():
             roaming[ap] += 1
-            
-        #if r and ap[0].get_support_11r():
-            #roaming[ap] += 1
-            
-    print(roaming)
+        if r and ap[0].get_support_11r():
+            roaming[ap] += 1
     
+    max_compatibility = max(roaming.values())
+    access_points = [k for k, v in roaming.items() if v == max_compatibility]
     
+    if len(access_points) == 1:
+        return access_points[0]
+    else:
+        print(access_points)
+        power_scores = {}
+        t = check_power(access_points)
     
 
 def parse_access_points(client, access_points):
