@@ -1,3 +1,4 @@
+
 class Network:
     def __init__(self, x: int, y: int, standard: str, frequency: str, support11k: str, support11v: str, support11r: str, min_rssi = None):
         self.x = x
@@ -32,6 +33,12 @@ class Network:
     def get_y(self):
         return self.y
     
+    def set_x(self, x):
+        self.x = x
+        
+    def set_y(self, y):
+        self.y = y
+    
     def get_standard(self):
         return int(self.standard[-1])
     
@@ -40,7 +47,6 @@ class Network:
         frequencies = [int(x.replace(".", "")) * 1000 if len(x) == 1 else int(x.replace(".", "")) * 100 for x in temp_frequencies]
         
         return frequencies
-
 
     def get_support_11k(self):
         return self.support11k

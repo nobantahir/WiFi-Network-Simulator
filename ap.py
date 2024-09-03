@@ -17,6 +17,9 @@ class AccessPoint(Network):
     def get_channel(self):
         return self.channel
     
+    def set_channel(self, channel):
+        self.channel = channel
+
     def get_power_level(self):
         return self.power_level
     
@@ -49,7 +52,10 @@ class AccessPoint(Network):
     
     def calc_rssi(self, x, y, frequency):
     # If the client is out of range it will return false.
-        distance = self.calc_distance(x, y)
+        # Assume that it isn't possible for distance from device to ap is 0 because of math domain error.
+        if distance >= 0:
+            distance = 1
+        print("Calc distance", distance)
         if distance < self.get_coverage_radius():
             return self.power_level - (20 * math.log10(distance)) - (20 * math.log10(frequency)) - 32.44
         else:

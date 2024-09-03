@@ -1,6 +1,6 @@
-import math
 from ap import AccessPoint
 from client import Client
+from ac import AccessController
 
 access_points = []
 clients = []
@@ -170,6 +170,7 @@ def check_frequency(access_points):
             new_list.append(ap)
     return new_list
 
+
 def check_fast(access_points):
     new_list = []
     for ap in access_points:
@@ -298,14 +299,26 @@ def parse_access_points(client, access_points):
     # access_points is filtered and aps that are not within rssi are removed from the list.
     access_points = [x for x in ap_rssi]
 
-    print(best_point(client, access_points))
+    match = best_point(client, access_points)
+    
+    return match
 
-
+def apply_move(client, x, y):
+    for item in clients:
+        if item.get_name() == client:
+            item.set_x(x)
+            item.set_y(y)
+            return item
 def run_simulation(simulation, access_points):
+    control = AccessController(access_points)
+    control.sort_access_points()
     for item in simulation:
         if type(item) == Client:
-            parse_access_points(item, access_points)     
-        else:
-            pass
-
+            print(parse_access_points(item, access_points))     
+        elif type(item) == tuple:
+            updated_item = apply_move(item[0], item[1], item[2])
+            print(parse_access_points(updated_item, access_points))
+        
+    
+    
 run_simulation(simulation, access_points)
