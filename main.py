@@ -1,11 +1,14 @@
 from ap import AccessPoint
 from client import Client
 from ac import AccessController
+from log import Bin
 
 access_points = []
 clients = []
 moves = []
 simulation = []
+
+operations = Bin()
 
 
 def acceptable_input(zero):
@@ -300,7 +303,7 @@ def parse_access_points(client, access_points):
     access_points = [x for x in ap_rssi]
 
     match = best_point(client, access_points)
-    
+    client.set_ap(match, )
     return match
 
 def apply_move(client, x, y):
@@ -308,17 +311,30 @@ def apply_move(client, x, y):
         if item.get_name() == client:
             item.set_x(x)
             item.set_y(y)
-            return item
+            ap = client.get_ap()
+            score = ap.calc_rssi(item.get_x(), item.get_y(), ap.get_frequency())
+            if ap.get_min_rssi():
+                if score > ap.get_min_rssi() or score > client.get_min_rssi():
+                    return True
+    return False
+                
+        
 def run_simulation(simulation, access_points):
     control = AccessController(access_points)
     control.sort_access_points()
     for item in simulation:
         if type(item) == Client:
-            print(parse_access_points(item, access_points))     
+            point = parse_access_points(item, access_points)
+            t = str(f"{item.get_name()} connected to {point.get_name()}")
+            operations.write_log(t) 
+
         elif type(item) == tuple:
-            updated_item = apply_move(item[0], item[1], item[2])
-            print(parse_access_points(updated_item, access_points))
+            if apply_move(item[0], item[1], item[2]):
+                point = parse_access_points(updated_item, access_points)
+                t = str(f"{updated_item.get_name()} connected to {point.get_name()}")
+                operations.write_log(t)
         
-    
+    operations.dump()
+    print(operations.unbin())  
     
 run_simulation(simulation, access_points)

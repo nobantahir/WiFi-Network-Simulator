@@ -1,5 +1,6 @@
 import math
 from network import Network
+from log import Bin
 
 class AccessPoint(Network):
     def __init__(self, name: str, x: int, y: int, channel: int, power_level: int, frequency: str, standard: str, support11k: str, support11v: str, support11r: str, coverage_radius: int, device_limit: int, min_rssi = None):
@@ -51,11 +52,11 @@ class AccessPoint(Network):
         return math.sqrt((self.x - x)**2 + (self.y - y)**2)
     
     def calc_rssi(self, x, y, frequency):
-    # If the client is out of range it will return false.
+        # If the client is out of range it will return false.
         # Assume that it isn't possible for distance from device to ap is 0 because of math domain error.
+        distance = self.calc_distance(x, y)
         if distance >= 0:
             distance = 1
-        print("Calc distance", distance)
         if distance < self.get_coverage_radius():
             return self.power_level - (20 * math.log10(distance)) - (20 * math.log10(frequency)) - 32.44
         else:

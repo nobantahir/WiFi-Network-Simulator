@@ -1,5 +1,4 @@
-import pickle as bin
-from ap import AccessPoint
+from log import Bin
 
 class AccessController:
     def __init__(self, access_points = []):
@@ -8,26 +7,6 @@ class AccessController:
         self.access_points = access_points
         self.in_range = {}
         self.allocation = {}
-
-    def write_log(self, message):
-        self.log += f"{message}\n"
- 
-    def dump(self):
-        with open("access_controller.pkl", "wb") as binary_file:
-            bin.dump(self.log, binary_file)
-
-    def unbin(self):
-        with open("access_controller.pkl", "rb") as binary_file:
-            content = bin.load(binary_file)
-        
-        return content
-            
-    def __call__(self):
-        print(self.unbin())
-    
-    def __str__(self):
-        return self.unbin()
-    
     
     def compare(self, ap, other):
         dist = ap.calc_distance(other.get_x(), other.get_y())
