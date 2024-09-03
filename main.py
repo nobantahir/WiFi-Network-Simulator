@@ -39,7 +39,6 @@ def parse_line(line):
                 simulation.append(move)
 
 
-
 # Main is the Access Controller
 
 #print("Enter Simulation File")
@@ -67,7 +66,7 @@ def iterate_frequencies(client, access_points, frequency):
     client_rssi = client.get_min_rssi()
     for ap in access_points:
         ap_rssi = ap.calc_rssi(client.get_x(), client.get_y(), frequency)
-        # If the frequency is beyond client spec, we will ignore it.
+        # If the rssi is beyond client spec, we will ignore it.
         if ap_rssi < client_rssi:
             if ap_rssi is not False:
                 ap_rssi = abs(ap_rssi)
