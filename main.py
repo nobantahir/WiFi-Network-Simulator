@@ -108,18 +108,38 @@ def check_power(access_points):
     
     return power_score
 
+def same_ap(access_points):
+    first_ap = access_points[0][0]
+    print(first_ap)
+    same = True
+    for ap in access_points:
+        print(id(ap[0]))
+        if ap[0] != first_ap:
+            same = False
+    if same:
+        print("All AP in list are same.")
+
+
+def single_ap(access_points):
+    if len(access_points) == 1:
+        return access_points[0]
+    else:
+        return False
 
 def best_point(client, access_points):
-    # Standard, Frequency, 11k, 11v, 11r
+    # Saving the clients specifications in local scope.
+    # Standard, Frequency, 11k, 11v, 11r.
     standard = client.get_standard()
     k = client.get_support_11k()
     v = client.get_support_11v()
     r = client.get_support_11r()
-    
+     
+    # First check if one AP.   
     standard_met = check_standard(standard, access_points)
     if standard_met and len(standard_met) == 1:
         return standard_met[0]
     
+    # 1. 
     roaming = {}
     for ap in standard_met:
         roaming[ap] = 0
@@ -140,6 +160,7 @@ def best_point(client, access_points):
         power_scores =  dict_max(check_power(access_points))
         print(power_scores)
     
+    return access_points[0]
 
 def parse_access_points(client, access_points):
     """This function will parse the access points for the client and return a dictionary
