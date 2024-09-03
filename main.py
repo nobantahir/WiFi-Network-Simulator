@@ -78,6 +78,16 @@ def iterate_frequencies(client, access_points, frequency):
                         temp_dict[name] = ap_rssi
     return temp_dict
 
+
+def dict_max(pairs):
+    """This function will find the maximum value(s) in a dictionary and return them in a list.
+    """
+    max_value = max(pairs.values())
+    access_points = [k for k, v in pairs.items() if v == max_value]
+    
+    return access_points
+
+
 def check_standard(client_standard, access_points):
     """This function will check if the client's standard is supported by any access point.
     """
@@ -96,7 +106,7 @@ def check_power(access_points):
     for ap in access_points:
         power_score[ap] = ap[0].get_power_level()
     
-    print(power_score)
+    return power_score
 
 
 def best_point(client, access_points):
@@ -110,16 +120,11 @@ def best_point(client, access_points):
     if standard_met and len(standard_met) == 1:
         return standard_met[0]
     
-    
     roaming = {}
-    
     for ap in standard_met:
         roaming[ap] = 0
-    #print(roaming)
     
     for ap in standard_met:
-        #print(ap[0].get_support_11k())
-        
         if k and ap[0].get_support_11k():
             roaming[ap] += 1
         if v and ap[0].get_support_11v():
@@ -127,15 +132,13 @@ def best_point(client, access_points):
         if r and ap[0].get_support_11r():
             roaming[ap] += 1
     
-    max_compatibility = max(roaming.values())
-    access_points = [k for k, v in roaming.items() if v == max_compatibility]
+    access_points = dict_max(roaming)
     
     if len(access_points) == 1:
         return access_points[0]
     else:
-        print(access_points)
-        power_scores = {}
-        t = check_power(access_points)
+        power_scores =  dict_max(check_power(access_points))
+        print(power_scores)
     
 
 def parse_access_points(client, access_points):
