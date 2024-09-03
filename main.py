@@ -2,6 +2,11 @@ import math
 from ap import AccessPoint
 from client import Client
 
+access_points = []
+clients = []
+moves = []
+simulation = []
+
 
 def acceptable_input(zero):
     assert zero in ["AP", "CLIENT", "MOVE"], "Error, input does not match expected."
@@ -33,12 +38,8 @@ def parse_line(line):
                 moves.append(move)
                 simulation.append(move)
 
-# use if variable is False for min rssi  
 
-access_points = []
-clients = []
-moves = []
-simulation = []
+
 # Main is the Access Controller
 
 #print("Enter Simulation File")
@@ -70,12 +71,13 @@ def iterate_frequencies(client, access_points, frequency):
         if ap_rssi < client_rssi:
             if ap_rssi is not False:
                 ap_rssi = abs(ap_rssi)
-                name = (ap, frequency) #(f"{ap.get_name()} {frequency}")
+                name = (ap, frequency)
                 if ap.min_rssi is False:
                     temp_dict[name] = ap_rssi
                 else:
                     if ap_rssi < ap.min_rssi:
                         temp_dict[name] = ap_rssi
+
     return temp_dict
 
 
@@ -100,7 +102,7 @@ def check_standard(client_standard, access_points):
     return False
 
 def check_power(access_points):
-    """This function will check for the highest power level.
+    """This function will check access point power levels.
     """
     power_score = {}
     for ap in access_points:
@@ -110,14 +112,13 @@ def check_power(access_points):
 
 def same_ap(access_points):
     first_ap = access_points[0][0]
-    print(first_ap)
     same = True
     for ap in access_points:
-        print(id(ap[0]))
         if ap[0] != first_ap:
             same = False
     if same:
-        print("All AP in list are same.")
+        return True
+    return False
 
 
 def single_ap(access_points):
@@ -125,6 +126,22 @@ def single_ap(access_points):
         return access_points[0]
     else:
         return False
+
+def check_roaming(k, v, r, access_points):
+    roaming = {}
+    for ap in access_points:
+            roaming[ap] = 0
+            
+    for ap in access_points:
+        if k and ap[0].get_support_11k():
+            roaming[ap] += 1
+        if v and ap[0].get_support_11v():
+            roaming[ap] += 1
+        if r and ap[0].get_support_11r():
+            roaming[ap] += 1
+    
+    return roaming
+    
 
 def best_point(client, access_points):
     # Saving the clients specifications in local scope.
@@ -134,32 +151,32 @@ def best_point(client, access_points):
     v = client.get_support_11v()
     r = client.get_support_11r()
      
-    # First check if one AP.   
+    # Base case if one AP.   
+    single_ap(access_points)
+    
+    # 1. Filter for compatiable WiFi version.
     standard_met = check_standard(standard, access_points)
-    if standard_met and len(standard_met) == 1:
-        return standard_met[0]
-    
-    # 1. 
-    roaming = {}
-    for ap in standard_met:
-        roaming[ap] = 0
-    
-    for ap in standard_met:
-        if k and ap[0].get_support_11k():
-            roaming[ap] += 1
-        if v and ap[0].get_support_11v():
-            roaming[ap] += 1
-        if r and ap[0].get_support_11r():
-            roaming[ap] += 1
-    
-    access_points = dict_max(roaming)
-    
-    if len(access_points) == 1:
-        return access_points[0]
+    if standard_met:
+        # Check if only one ap meets standards.
+        single_ap(standard_met)
+        # 2. Filter for roaming standards.
+        roaming = check_roaming(k, v, r, standard_met)
     else:
-        power_scores =  dict_max(check_power(access_points))
-        print(power_scores)
+        roaming = check_roaming(k, v, r, access_points)
+        
+    # This will get the most compatible roaming standards.
+    access_points = dict_max(roaming)
+    # Check if only one ap meets standards.
+    single_ap(access_points)
     
+    # 3. Filter for power level.
+    power_scores =  dict_max(check_power(access_points))
+    # Check if only one ap meets standards.
+    single_ap(power_scores)
+    
+    # 4. Filter for device limit and load.
+    
+    same_ap(access_points)
     return access_points[0]
 
 def parse_access_points(client, access_points):
