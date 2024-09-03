@@ -299,7 +299,6 @@ def parse_access_points(client, access_points):
     access_points = [x for x in ap_rssi]
 
     print(best_point(client, access_points))
-    
 
 
 def run_simulation(simulation, access_points):
