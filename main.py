@@ -43,9 +43,8 @@ def parse_line(line):
                 moves.append(move)
                 simulation.append(move)
 
-#print("Enter Simulation File")
-#sim = input()
-sim = "C:\\Users\\noban\\Desktop\\P3\\sim.txt"
+print("Enter Simulation File")
+sim = input()
 with open(sim, 'r') as sim_file:
     for line in sim_file:
         parse_line(line)
