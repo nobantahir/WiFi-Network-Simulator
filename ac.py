@@ -6,13 +6,15 @@ class AccessController():
         self.access_points = access_points
         self.in_range = {}
         self.allocation = {}
-    
+
+
     def compare(self, ap, other):
         dist = ap.calc_distance(other.get_x(), other.get_y())
         rad = ap.get_coverage_radius()
         if dist <= rad:
             return True
-            
+
+
     def allocate(self, access_point):
         temp = self.allocation
         if access_point not in self.allocation:
@@ -27,12 +29,8 @@ class AccessController():
                                 print(f"{access_point.get_name()} has no channel to connect to.")
                             access_point.set_channel(temp)
                 self.allocation[access_point] = access_point.get_channel()
-        
+
+
     def sort_access_points(self):
         for ap in self.access_points:
             self.allocate(ap)
-
-c = AccessController()
-c.log.write_log("Access Controller.")
-c.log.dump()
-print(c.log)

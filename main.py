@@ -362,19 +362,15 @@ def run_simulation(simulation, access_points):
             point = parse_access_points(item, access_points)
             t = str(f"{item.get_name()} connected to {point.get_name()}")
             operations[item].write_log(t)
-            #operations[item].dump()
-            print(operations[item])
-            #operations.write_log(t) 
+            control.log.write_log(t)
 
         elif type(item) == tuple:
             updated_item = apply_move(item[0], item[1], item[2])
             if updated_item:
                 point = parse_access_points(updated_item, access_points)
                 t = str(f"{updated_item.get_name()} connected to {point.get_name()}")
-                #operations.write_log(t)
-            
-        
-    #operations.dump()
-    #print(operations.unbin())  
+                operations[item].write_log(t)
+                control.log.write_log(t)
+ 
     
 run_simulation(simulation, access_points)
