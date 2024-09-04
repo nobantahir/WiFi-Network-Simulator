@@ -1,12 +1,13 @@
 from network import Network
 from log import Bin
 
-class Client(Network):
+class Client(Network, Bin):
     def __init__(self, name: str, x: int, y: int, standard: str, frequency: str,  support11k: str, support11v: str, support11r: str, min_rssi: int):
         super().__init__(x, y, standard, frequency, support11k, support11v, support11r, min_rssi)
         self.name = name
         self.ap_scores = {}
         self.ap = None
+        self.ap_frequency = None
         
     def get_name(self):
         return self.name
@@ -14,10 +15,15 @@ class Client(Network):
     def get_ap(self):
         return self.ap
     
-    def set_ap(self, ap, frequency):
+    def set_ap(self, ap):
         self.ap = ap
-        self.ap_frequency = frequency
     
+    def get_ap_frequency(self):
+        return self.ap_frequency
+    
+    def set_ap_frequency(self, frequency):
+        self.ap_frequency = frequency
+
     def remove_ap(self):
         self.ap = None
     

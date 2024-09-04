@@ -1,6 +1,7 @@
-
-class Network:
+from log import Bin
+class Network(Bin):
     def __init__(self, x: int, y: int, standard: str, frequency: str, support11k: str, support11v: str, support11r: str, min_rssi = None):
+        super().__init__()
         self.x = x
         self.y = y
         self.standard = standard

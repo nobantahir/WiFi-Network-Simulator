@@ -1,6 +1,6 @@
 from log import Bin
 
-class AccessController:
+class AccessController(Bin):
     def __init__(self, access_points = []):
         self.step = 1
         self.log = ""

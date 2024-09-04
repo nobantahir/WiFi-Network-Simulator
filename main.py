@@ -125,7 +125,7 @@ def same_ap(access_points):
 
 def single_ap(access_points):
     if len(access_points) == 1:
-        return access_points[0][0]
+        return tuple((access_points[0][0], access_points[0][1]))
     else:
         return False
 
@@ -202,81 +202,86 @@ def best_point(client, access_points):
     v = client.get_support_11v()
     r = client.get_support_11r()
     
-    # Base case if one AP.   
-    if single_ap(access_points):
-        return single_ap(access_points)
-    
-    # Base case if no AP.
-    if len(access_points) == 0:
-        print("There are no access points.")
-        return -1
-    
-    # 1. Filter for compatiable WiFi version.
-    standard_met = check_standard(standard, access_points)
-    if standard_met:
-        # Check if only one ap meets standards.
-        if single_ap(access_points):
-            return single_ap(access_points)
-        # 2. Filter for roaming standards.
-        roaming = check_roaming(k, v, r, standard_met)
-    else:
-        roaming = check_roaming(k, v, r, access_points)
+    finding_match = True
+    match = tuple()
+    while finding_match:
+        # Base case if one AP.
+        is_single = single_ap(access_points)   
+        if is_single:
+            finding_match = False
+            return is_single
         
-    # This will get the most compatible roaming standards.
-    access_points = dict_max(roaming)
-    # Check if only one ap meets standards.
-    if single_ap(access_points):
-        return single_ap(access_points)
-    
-    # 3. Filter for power level.
-    access_points =  dict_max(check_power(access_points))
-    # Check if only one ap meets standards.
-    if single_ap(access_points):
-        return single_ap(access_points)
-    
-    # 4. Filter for device limit.
-    check_limit = check_ap_limit(access_points)
-    if check_limit:
-        access_points = check_limit
+        # Base case if no AP.
+        if len(access_points) == 0:
+            print("There are no access points.")
+            return -1
+        
+        # 1. Filter for compatiable WiFi version.
+        standard_met = check_standard(standard, access_points)
+        if standard_met:
+            # Check if only one ap meets standards.
+            if single_ap(access_points):
+                return single_ap(access_points)
+            # 2. Filter for roaming standards.
+            roaming = check_roaming(k, v, r, standard_met)
+        else:
+            roaming = check_roaming(k, v, r, access_points)
+            
+        # This will get the most compatible roaming standards.
+        access_points = dict_max(roaming)
         # Check if only one ap meets standards.
         if single_ap(access_points):
             return single_ap(access_points)
-    # Else all ap full.
-    else:
-        print("All access points are full.")
-        return -1
-    
-    # 5. Filter for highest frequency.
-    access_points = check_frequency(access_points)
-    # Check if only one ap meets standards.
-    if single_ap(access_points):
-        return single_ap(access_points)
-    
-    # 6. Filter for best channels.
-    check_best_ch = check_channel(access_points)
-    if check_best_ch:
-        access_points = dict_max(check_channel(check_best_ch))
-        if single_ap(access_points):
-            return single_ap(access_points)
-    
-    # 7. Filter for 802.11r.
-    check_fast_con = check_fast(access_points)
-    if check_fast_con:
-        access_points = check_fast(access_points)
+        
+        # 3. Filter for power level.
+        access_points =  dict_max(check_power(access_points))
         # Check if only one ap meets standards.
         if single_ap(access_points):
             return single_ap(access_points)
-    
-    # All checks have been completed.
-    # If there are any AP left, then we will connect to the AP with lowest connections.
-    # If there are no AP then there are no suitable connections.
-    if len(access_points) == 0:
-        print("No suitable connections.")
-        return -1
-    
-    if len(access_points) > 1:
-        match = final_connect(access_points)
-        return match
+        
+        # 4. Filter for device limit.
+        check_limit = check_ap_limit(access_points)
+        if check_limit:
+            access_points = check_limit
+            # Check if only one ap meets standards.
+            if single_ap(access_points):
+                return single_ap(access_points)
+        # Else all ap full.
+        else:
+            print("All access points are full.")
+            return -1
+        
+        # 5. Filter for highest frequency.
+        access_points = check_frequency(access_points)
+        # Check if only one ap meets standards.
+        if single_ap(access_points):
+            return single_ap(access_points)
+        
+        # 6. Filter for best channels.
+        check_best_ch = check_channel(access_points)
+        if check_best_ch:
+            access_points = dict_max(check_channel(check_best_ch))
+            if single_ap(access_points):
+                return single_ap(access_points)
+        
+        # 7. Filter for 802.11r.
+        check_fast_con = check_fast(access_points)
+        if check_fast_con:
+            access_points = check_fast(access_points)
+            # Check if only one ap meets standards.
+            if single_ap(access_points):
+                return single_ap(access_points)
+        
+        # All checks have been completed.
+        # If there are any AP left, then we will connect to the AP with lowest connections.
+        # If there are no AP then there are no suitable connections.
+        if len(access_points) == 0:
+            print("No suitable connections.")
+            return -1
+        
+        if len(access_points) > 1:
+            match = final_connect(access_points)
+            return match
     
 
 def parse_access_points(client, access_points):
@@ -303,22 +308,25 @@ def parse_access_points(client, access_points):
     access_points = [x for x in ap_rssi]
 
     match = best_point(client, access_points)
-    client.set_ap(match, )
-    return match
+    client.set_ap(match[0])
+    client.set_ap_frequency(match[1])
+ 
+    return match[0]
 
 def apply_move(client, x, y):
     for item in clients:
         if item.get_name() == client:
             item.set_x(x)
             item.set_y(y)
-            ap = client.get_ap()
-            score = ap.calc_rssi(item.get_x(), item.get_y(), ap.get_frequency())
+            ap = item.get_ap()
+            score = ap.calc_rssi(item.get_x(), item.get_y(), item.get_ap_frequency())
             if ap.get_min_rssi():
-                if score > ap.get_min_rssi() or score > client.get_min_rssi():
+                if score > ap.get_min_rssi() or score > item.get_min_rssi():
                     return True
     return False
                 
-        
+def create_bin():
+    pass
 def run_simulation(simulation, access_points):
     control = AccessController(access_points)
     control.sort_access_points()
@@ -329,10 +337,12 @@ def run_simulation(simulation, access_points):
             operations.write_log(t) 
 
         elif type(item) == tuple:
-            if apply_move(item[0], item[1], item[2]):
+            updated_item = apply_move(item[0], item[1], item[2])
+            if updated_item:
                 point = parse_access_points(updated_item, access_points)
                 t = str(f"{updated_item.get_name()} connected to {point.get_name()}")
                 operations.write_log(t)
+            
         
     operations.dump()
     print(operations.unbin())  
