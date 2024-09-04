@@ -6,10 +6,9 @@ class AccessController():
         self.access_points = access_points
         self.in_range = {}
         self.allocation = {}
-
+        
     def __str__(self):
         return self.log.__str__()
-    
     
     def compare(self, ap, other):
         dist = ap.calc_distance(other.get_x(), other.get_y())

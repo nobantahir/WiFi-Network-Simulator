@@ -23,6 +23,7 @@ def parse_line(line):
         data = line.strip("\n").split(' ')
         line_call = acceptable_input(data[0])
         if line_call == "AP":
+            assert len(data) in [14, 13], "Invalid AP information."
             if len(data) == 14:
                 ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], (data[8]), (data[9]), (data[10]), int(data[11]), int(data[12]), int(data[13]))
                 access_points.append(ap)
@@ -30,11 +31,13 @@ def parse_line(line):
                 ap = AccessPoint(data[1], int(data[2]), int(data[3]), int(data[4]), int(data[5]), data[6], data[7], (data[8]), (data[9]), (data[10]), int(data[11]), int(data[12]))
                 access_points.append(ap)
         elif line_call == "CLIENT":
+            assert len(data) == 10, "Invalid client information."
             if len(data) == 10:
                 client = Client(data[1], int(data[2]), int(data[3]), data[4], data[5], (data[6]), (data[7]), (data[8]), int(data[9]))
                 clients.append(client)
                 simulation.append(client)
         elif line_call == "MOVE":
+            assert len(data) == 4, "Invalid move information."
             if len(data) == 4:
                 move = (data[1], int(data[2]), int(data[3]))
                 moves.append(move)
@@ -49,9 +52,11 @@ with open(sim, 'r') as sim_file:
 
 
 def iterate_frequencies(client, access_points, frequency):
+    assert type(client.get_x()) is int, "Coordinates must be integers."
+    assert type(client.get_y()) is int, "Coordinates must be integers."
+    assert type(frequency) is int, "Frequency must be an integer."
     temp_dict = {}
     client_rssi = client.get_min_rssi()
-    
     for ap in access_points:
         ap_rssi = ap.calc_rssi(client.get_x(), client.get_y(), frequency)
         # If the rssi is beyond client spec, we will ignore it.
@@ -93,6 +98,7 @@ def check_power(access_points):
 
 def same_ap(access_points):
     first_ap = access_points[0][0]
+    assert type(first_ap) is AccessPoint, "Error, missing class object."
     same = True
     for ap in access_points:
         if ap[0] != first_ap:
@@ -109,10 +115,14 @@ def single_ap(access_points):
         return False
 
 def check_roaming(k, v, r, access_points):
+    assert type(k) is bool, "Error, k must be boolean."
+    assert type(v) is bool, "Error, v must be boolean."
+    assert type(r) is bool, "Error, r must be boolean."
+    
     roaming = {}
     for ap in access_points:
             roaming[ap] = 0
-            
+
     for ap in access_points:
         if k and ap[0].get_support_11k():
             roaming[ap] += 1
@@ -147,6 +157,7 @@ def check_channel(access_points):
 def check_frequency(access_points):
     new_list = []
     fastest = max(access_points)[1]
+    assert type(fastest) is int, "Fastest must be an int of the frequency."
     for ap in access_points:
         if ap[1] == fastest:
             new_list.append(ap)
@@ -171,7 +182,8 @@ def get_connections(access_points):
         
 def final_connect(access_points):
     d = get_connections(access_points)
-
+    connect = min(d, key = d.get)
+    assert type(connect) is tuple, "Connection must be a tuple."
     return min(d, key = d.get)
 
 def best_point(client, access_points):
@@ -181,6 +193,11 @@ def best_point(client, access_points):
     k = client.get_support_11k()
     v = client.get_support_11v()
     r = client.get_support_11r()
+    
+    assert type(standard) is not None, "Standard must not be None."
+    assert type(k) is not None, "k must not be None."
+    assert type(v) is not None, "v must not be None."
+    assert type(r) is not None, "r must not be None."
     
     finding_match = True
     match = tuple()

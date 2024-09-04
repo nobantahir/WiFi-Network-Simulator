@@ -11,8 +11,6 @@ class Client(Network):
         self.ap_frequency = None
         self.ap_rssi = None
 
-    def __str__(self):
-        return self.log.__str__()
     
     def get_name(self):
         return self.name
