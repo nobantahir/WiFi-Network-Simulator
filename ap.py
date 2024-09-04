@@ -13,8 +13,8 @@ class AccessPoint(Network):
         self.device_limit = device_limit
         self.devices = []
     
-    def __str__(self):
-        return self.log.__str__()
+    #def __str__(self):
+      #  return self.log.__str__()
     
     def get_name(self):
         return self.name
@@ -62,6 +62,6 @@ class AccessPoint(Network):
         if distance >= 0:
             distance = 1
         if distance < self.get_coverage_radius():
-            return self.power_level - (20 * math.log10(distance)) - (20 * math.log10(frequency)) - 32.44
+            return abs(self.power_level - (20 * math.log10(distance)) - (20 * math.log10(frequency)) - 32.44)
         else:
             return False

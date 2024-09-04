@@ -40,9 +40,6 @@ def parse_line(line):
                 moves.append(move)
                 simulation.append(move)
 
-
-# Main is the Access Controller
-
 #print("Enter Simulation File")
 #sim = input()
 sim = "C:\\Users\\noban\\Desktop\\P3\\sim.txt"
@@ -52,26 +49,15 @@ with open(sim, 'r') as sim_file:
 
 
 def iterate_frequencies(client, access_points, frequency):
-    """This function will iterate over access points based on frequencies available and 
-    add them to a dictionary if it is possible for them to be connected to. If the rssi is false
-    then the client is out of the access points range.
-
-    Args:
-        client (object): the client object
-        access_points (list of objects): a list of access points
-        frequency (int): an int representing the frequency
-
-    Returns:
-        dict: containing the {key: value} where key is tuple (access point, frequency) and value is the rssi
-    """
     temp_dict = {}
     client_rssi = client.get_min_rssi()
+    
     for ap in access_points:
         ap_rssi = ap.calc_rssi(client.get_x(), client.get_y(), frequency)
         # If the rssi is beyond client spec, we will ignore it.
-        if ap_rssi < client_rssi:
-            if ap_rssi is not False:
-                ap_rssi = abs(ap_rssi)
+        if ap_rssi is not False:
+            ap_rssi = abs(ap_rssi)
+            if abs(ap_rssi) < client_rssi:
                 name = (ap, frequency)
                 if ap.min_rssi is False:
                     temp_dict[name] = ap_rssi
@@ -83,8 +69,6 @@ def iterate_frequencies(client, access_points, frequency):
 
 
 def dict_max(pairs):
-    """This function will find the maximum value(s) in a dictionary and return them in a list.
-    """
     max_value = max(pairs.values())
     access_points = [k for k, v in pairs.items() if v == max_value]
     
@@ -92,8 +76,6 @@ def dict_max(pairs):
 
 
 def check_standard(client_standard, access_points):
-    """This function will check if the client's standard is supported by any access point.
-    """
     compatiable = []
     for ap in access_points:
         if ap[0].get_standard() >= client_standard:
@@ -103,8 +85,6 @@ def check_standard(client_standard, access_points):
     return False
 
 def check_power(access_points):
-    """This function will check access point power levels.
-    """
     power_score = {}
     for ap in access_points:
         power_score[ap] = ap[0].get_power_level()
@@ -213,7 +193,7 @@ def best_point(client, access_points):
         
         # Base case if no AP.
         if len(access_points) == 0:
-            print("There are no access points.")
+            client.log.write_log(f"No AP available for {client.get_name()}")
             finding_match = False
             return -1
         
@@ -304,9 +284,6 @@ def best_point(client, access_points):
     
 
 def parse_access_points(client, access_points):
-    if 'ap_rssi' in locals():
-        del ap_rssi
-
     if len(client.get_frequency()) == 1:
         ap_rssi = iterate_frequencies(client, access_points, int(client.get_frequency()[0]))
     else:
@@ -319,27 +296,39 @@ def parse_access_points(client, access_points):
 
     # access_points is filtered and aps that are not within rssi are removed from the list.
     access_points = [x for x in ap_rssi]
-
-    match = best_point(client, access_points)
     
-    client.set_ap(match[0])
-    client.set_ap_frequency(match[1])
-    client.set_ap_rssi(ap_rssi[match])
+    ap_match = best_point(client, access_points)
     
+    if ap_match == -1:
+        return None
+    else:
+        client.set_ap(ap_match[0])
+        client.set_ap_frequency(ap_match[1])
+        client.set_ap_rssi(ap_rssi[ap_match])
     
-    
-    return match[0]
+    return ap_match[0]
 
 def apply_move(client, x, y):
+    check_client = None
     for item in clients:
         if item.get_name() == client:
-            item.set_x(x)
-            item.set_y(y)
-            ap = item.get_ap()
-            score = ap.calc_rssi(item.get_x(), item.get_y(), item.get_ap_frequency())
-            if ap.get_min_rssi():
-                if score < ap.get_min_rssi() or score < item.get_min_rssi():
-                    return True
+            check_client = item
+            break
+    check_client.set_x(x)
+    check_client.set_y(y)
+
+    ap = check_client.get_ap()
+    score = ap.calc_rssi(check_client.get_x(), check_client.get_y(), check_client.get_ap_frequency())
+    
+    score = abs(score)
+    if ap.get_min_rssi():
+        if score > ap.get_min_rssi() or score > check_client.get_min_rssi():
+            check_client.remove_ap()
+            return True
+    else:
+        if score > check_client.get_min_rssi():
+            check_client.remove_ap()
+            return True
     return False
                 
 def create_bin(lst):
@@ -367,19 +356,23 @@ def run_simulation(simulation, access_points):
                 if client.get_name() == item[0]:
                     temp_client = client
 
+            point = temp_client.get_ap()
+            
             updated_item = apply_move(item[0], item[1], item[2])
             c = f"{item[0]} moved to X = {item[1]}, Y = {item[2]}"
             operations[temp_client].write_log(c)
             control.log.write_log(c)
             
+
             if updated_item:
-                t = str(f"{temp_client.get_name()} disconnected from {point.get_name()} with signal strength: {temp_client.get_ap_rssi():.2f}")
+                t = str(f"{temp_client.get_name()} disconnected from {temp_client.get_ap().get_name()} with signal strength: {temp_client.get_ap_rssi():.2f}")
                 operations[temp_client].write_log(t)
                 control.log.write_log(t)
-                point = parse_access_points(temp_client, access_points)
-                t = str(f"{temp_client.get_name()} connected to {point.get_name()} with sigal strength: {temp_client.get_ap_rssi():.2f}")
-                operations[temp_client].write_log(t)
-                control.log.write_log(t)
+                
+                new_point = parse_access_points(temp_client, access_points)
+                r = str(f"{temp_client.get_name()} connected to {new_point.get_name()} with sigal strength: {temp_client.get_ap_rssi():.2f}")
+                operations[temp_client].write_log(r)
+                control.log.write_log(r)
 
     print(control)
 run_simulation(simulation, access_points)
