@@ -34,3 +34,4 @@ class AccessController():
     def sort_access_points(self):
         for ap in self.access_points:
             self.allocate(ap)
+        return self.allocation

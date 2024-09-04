@@ -346,7 +346,6 @@ def apply_move(client, x, y):
     return False
                 
 def create_bin(lst):
-    print(lst)
     for i in lst:
         if type(i) != tuple:
             operations[i]= i.log
@@ -365,12 +364,21 @@ def run_simulation(simulation, access_points):
             control.log.write_log(t)
 
         elif type(item) == tuple:
+            for client in clients:
+                if client.get_name() == item[0]:
+                    temp_client = client
+
             updated_item = apply_move(item[0], item[1], item[2])
+            c = f"{item[0]} moved to X = {item[1]}, Y = {item[2]}"
+            operations[temp_client].write_log(c)
+            control.log.write_log(c)
+            
             if updated_item:
                 point = parse_access_points(updated_item, access_points)
                 t = str(f"{updated_item.get_name()} connected to {point.get_name()}")
-                operations[item].write_log(t)
+                operations[updated_item].write_log(t)
                 control.log.write_log(t)
- 
-    
+
+    print(control.log)
+
 run_simulation(simulation, access_points)
