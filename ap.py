@@ -2,9 +2,10 @@ import math
 from network import Network
 from log import Bin
 
-class AccessPoint(Network, Bin):
+class AccessPoint(Network):
     def __init__(self, name: str, x: int, y: int, channel: int, power_level: int, frequency: str, standard: str, support11k: str, support11v: str, support11r: str, coverage_radius: int, device_limit: int, min_rssi = None):
         super().__init__(x, y, standard, frequency, support11k, support11v, support11r, min_rssi)
+        self.log = Bin("ap", name)
         self.name = name
         self.channel = channel
         self.power_level = power_level

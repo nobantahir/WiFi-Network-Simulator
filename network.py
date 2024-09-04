@@ -1,7 +1,5 @@
-from log import Bin
-class Network(Bin):
+class Network():
     def __init__(self, x: int, y: int, standard: str, frequency: str, support11k: str, support11v: str, support11r: str, min_rssi = None):
-        super().__init__()
         self.x = x
         self.y = y
         self.standard = standard
@@ -24,9 +22,7 @@ class Network(Bin):
             self.min_rssi = False
         else:
             self.min_rssi = min_rssi
-            
-        self.step = 1
-        self.log = ""
+
     
     def get_x(self):
         return self.x

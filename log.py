@@ -1,20 +1,18 @@
 import pickle as bin
-import os
 
 class Bin:
-    def __init__(self):
+    def __init__(self, type, name = ""):
         self.step = 1
         self.log = ""
-
+        type = str(type)
+        name = str(name)
+        self.bin_name = f"{type}_{name}_bin.pkl"
+        
     def write_log(self, message):
         self.log += f"{self.step}. {message}\n"
         self.step += 1
  
     def dump(self):
-        file_name = os.path.basename(__file__)
-        file_name = file_name.rsplit(".", 1)[0]
-        #print(file_name)
-        self.bin_name = f"{file_name}_bin.pkl"
         with open(self.bin_name, "wb") as binary_file:
             bin.dump(self.log, binary_file)
 
@@ -25,7 +23,9 @@ class Bin:
         return content
             
     def __call__(self):
+        self.dump()
         print(self.unbin())
     
     def __str__(self):
+        self.dump()
         return self.unbin()

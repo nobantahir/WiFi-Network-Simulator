@@ -1,8 +1,8 @@
 from log import Bin
 
-class AccessController(Bin):
+class AccessController():
     def __init__(self, access_points = []):
-        super().__init__()
+        self.log = Bin("ac", "access_controller")
         self.access_points = access_points
         self.in_range = {}
         self.allocation = {}
@@ -31,3 +31,8 @@ class AccessController(Bin):
     def sort_access_points(self):
         for ap in self.access_points:
             self.allocate(ap)
+
+c = AccessController()
+c.log.write_log("Access Controller.")
+c.log.dump()
+print(c.log)

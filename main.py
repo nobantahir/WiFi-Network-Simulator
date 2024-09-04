@@ -8,7 +8,7 @@ clients = []
 moves = []
 simulation = []
 
-operations = Bin()
+operations = {}
 
 
 def acceptable_input(zero):
@@ -345,26 +345,36 @@ def apply_move(client, x, y):
                     return True
     return False
                 
-def create_bin():
-    pass
+def create_bin(lst):
+    print(lst)
+    for i in lst:
+        if type(i) != tuple:
+            operations[i]= i.log
+    
 def run_simulation(simulation, access_points):
+    create_bin(simulation)
+    create_bin(access_points)
+
     control = AccessController(access_points)
     control.sort_access_points()
     for item in simulation:
         if type(item) == Client:
             point = parse_access_points(item, access_points)
             t = str(f"{item.get_name()} connected to {point.get_name()}")
-            operations.write_log(t) 
+            operations[item].write_log(t)
+            #operations[item].dump()
+            print(operations[item])
+            #operations.write_log(t) 
 
         elif type(item) == tuple:
             updated_item = apply_move(item[0], item[1], item[2])
             if updated_item:
                 point = parse_access_points(updated_item, access_points)
                 t = str(f"{updated_item.get_name()} connected to {point.get_name()}")
-                operations.write_log(t)
+                #operations.write_log(t)
             
         
-    operations.dump()
-    print(operations.unbin())  
+    #operations.dump()
+    #print(operations.unbin())  
     
 run_simulation(simulation, access_points)

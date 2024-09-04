@@ -1,9 +1,10 @@
 from network import Network
 from log import Bin
 
-class Client(Network, Bin):
+class Client(Network):
     def __init__(self, name: str, x: int, y: int, standard: str, frequency: str,  support11k: str, support11v: str, support11r: str, min_rssi: int):
         super().__init__(x, y, standard, frequency, support11k, support11v, support11r, min_rssi)
+        self.log = Bin("client", name)
         self.name = name
         self.ap_scores = {}
         self.ap = None
