@@ -9,7 +9,8 @@ class Client(Network):
         self.ap_scores = {}
         self.ap = None
         self.ap_frequency = None
-        
+        self.ap_rssi = None
+
     def __str__(self):
         return self.log.__str__()
     
@@ -31,5 +32,8 @@ class Client(Network):
     def remove_ap(self):
         self.ap = None
     
-    def get_ap_scores(self):
-        return self.ap_scores
+    def get_ap_rssi(self):
+        return self.ap_rssi
+    
+    def set_ap_rssi(self, ap_rssi):
+        self.ap_rssi = ap_rssi

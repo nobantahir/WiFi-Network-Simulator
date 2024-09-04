@@ -1,7 +1,6 @@
 from ap import AccessPoint
 from client import Client
 from ac import AccessController
-from log import Bin
 
 access_points = []
 clients = []
@@ -305,15 +304,9 @@ def best_point(client, access_points):
     
 
 def parse_access_points(client, access_points):
-    """This function will parse the access points for the client and return a dictionary
-    with the key as the str({access point} {frequency}) and value as the rssi.
+    if 'ap_rssi' in locals():
+        del ap_rssi
 
-    Args:
-        client (object): the client object
-        access_points (list of objects): a list of access points
-    Returns:
-        dict: containing the {key: value} where key is the str({access point} {frequency}) and value is the rssi
-    """
     if len(client.get_frequency()) == 1:
         ap_rssi = iterate_frequencies(client, access_points, int(client.get_frequency()[0]))
     else:
@@ -328,9 +321,13 @@ def parse_access_points(client, access_points):
     access_points = [x for x in ap_rssi]
 
     match = best_point(client, access_points)
+    
     client.set_ap(match[0])
     client.set_ap_frequency(match[1])
- 
+    client.set_ap_rssi(ap_rssi[match])
+    
+    
+    
     return match[0]
 
 def apply_move(client, x, y):
@@ -341,7 +338,7 @@ def apply_move(client, x, y):
             ap = item.get_ap()
             score = ap.calc_rssi(item.get_x(), item.get_y(), item.get_ap_frequency())
             if ap.get_min_rssi():
-                if score > ap.get_min_rssi() or score > item.get_min_rssi():
+                if score < ap.get_min_rssi() or score < item.get_min_rssi():
                     return True
     return False
                 
@@ -361,7 +358,7 @@ def run_simulation(simulation, access_points):
     for item in simulation:
         if type(item) == Client:
             point = parse_access_points(item, access_points)
-            t = str(f"{item.get_name()} connected to {point.get_name()}")
+            t = str(f"{item.get_name()} connected to {point.get_name()} with signal strength: {item.get_ap_rssi():.2f}")
             operations[item].write_log(t)
             control.log.write_log(t)
 
@@ -376,9 +373,13 @@ def run_simulation(simulation, access_points):
             control.log.write_log(c)
             
             if updated_item:
-                point = parse_access_points(updated_item, access_points)
-                t = str(f"{updated_item.get_name()} connected to {point.get_name()}")
-                operations[updated_item].write_log(t)
+                t = str(f"{temp_client.get_name()} disconnected from {point.get_name()} with signal strength: {temp_client.get_ap_rssi():.2f}")
+                operations[temp_client].write_log(t)
                 control.log.write_log(t)
+                point = parse_access_points(temp_client, access_points)
+                t = str(f"{temp_client.get_name()} connected to {point.get_name()} with sigal strength: {temp_client.get_ap_rssi():.2f}")
+                operations[temp_client].write_log(t)
+                control.log.write_log(t)
+
     print(control)
 run_simulation(simulation, access_points)
