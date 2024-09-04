@@ -13,6 +13,9 @@ class AccessPoint(Network):
         self.device_limit = device_limit
         self.devices = []
     
+    def __str__(self):
+        return self.log.__str__()
+    
     def get_name(self):
         return self.name
     

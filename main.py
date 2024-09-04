@@ -356,6 +356,8 @@ def run_simulation(simulation, access_points):
 
     control = AccessController(access_points)
     control.sort_access_points()
+
+
     for item in simulation:
         if type(item) == Client:
             point = parse_access_points(item, access_points)
@@ -378,7 +380,5 @@ def run_simulation(simulation, access_points):
                 t = str(f"{updated_item.get_name()} connected to {point.get_name()}")
                 operations[updated_item].write_log(t)
                 control.log.write_log(t)
-
-    print(control.log)
-
+    print(control)
 run_simulation(simulation, access_points)

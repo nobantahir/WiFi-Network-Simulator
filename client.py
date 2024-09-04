@@ -10,6 +10,9 @@ class Client(Network):
         self.ap = None
         self.ap_frequency = None
         
+    def __str__(self):
+        return self.log.__str__()
+    
     def get_name(self):
         return self.name
     
