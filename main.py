@@ -390,5 +390,5 @@ def run_simulation(simulation, access_points):
                 operations[temp_client].write_log(r)
                 control.log.write_log(r)
 
-    print(control)
+    #print(control)
 run_simulation(simulation, access_points)
