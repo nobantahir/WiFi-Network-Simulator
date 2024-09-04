@@ -2,8 +2,7 @@ from log import Bin
 
 class AccessController(Bin):
     def __init__(self, access_points = []):
-        self.step = 1
-        self.log = ""
+        super().__init__()
         self.access_points = access_points
         self.in_range = {}
         self.allocation = {}

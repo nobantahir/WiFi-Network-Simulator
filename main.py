@@ -192,6 +192,7 @@ def get_connections(access_points):
         
 def final_connect(access_points):
     d = get_connections(access_points)
+
     return min(d, key = d.get)
 
 def best_point(client, access_points):
@@ -214,14 +215,17 @@ def best_point(client, access_points):
         # Base case if no AP.
         if len(access_points) == 0:
             print("There are no access points.")
+            finding_match = False
             return -1
         
         # 1. Filter for compatiable WiFi version.
         standard_met = check_standard(standard, access_points)
         if standard_met:
             # Check if only one ap meets standards.
-            if single_ap(access_points):
-                return single_ap(access_points)
+            is_single = single_ap(access_points)   
+            if is_single:
+                finding_match = False
+                return is_single
             # 2. Filter for roaming standards.
             roaming = check_roaming(k, v, r, standard_met)
         else:
@@ -230,58 +234,74 @@ def best_point(client, access_points):
         # This will get the most compatible roaming standards.
         access_points = dict_max(roaming)
         # Check if only one ap meets standards.
-        if single_ap(access_points):
-            return single_ap(access_points)
+        is_single = single_ap(access_points)   
+        if is_single:
+            finding_match = False
+            return is_single
         
         # 3. Filter for power level.
         access_points =  dict_max(check_power(access_points))
         # Check if only one ap meets standards.
-        if single_ap(access_points):
-            return single_ap(access_points)
+        is_single = single_ap(access_points)   
+        if is_single:
+            finding_match = False
+            return is_single
         
         # 4. Filter for device limit.
         check_limit = check_ap_limit(access_points)
         if check_limit:
             access_points = check_limit
             # Check if only one ap meets standards.
-            if single_ap(access_points):
-                return single_ap(access_points)
+            is_single = single_ap(access_points)   
+            if is_single:
+                finding_match = False
+                return is_single
         # Else all ap full.
         else:
             print("All access points are full.")
+            finding_match = False
             return -1
         
         # 5. Filter for highest frequency.
         access_points = check_frequency(access_points)
         # Check if only one ap meets standards.
-        if single_ap(access_points):
-            return single_ap(access_points)
+        is_single = single_ap(access_points)   
+        if is_single:
+            finding_match = False
+            return is_single
         
         # 6. Filter for best channels.
         check_best_ch = check_channel(access_points)
         if check_best_ch:
             access_points = dict_max(check_channel(check_best_ch))
-            if single_ap(access_points):
-                return single_ap(access_points)
+            # Check if only one ap meets standards.
+            is_single = single_ap(access_points)   
+            if is_single:
+                finding_match = False
+                return is_single
         
         # 7. Filter for 802.11r.
         check_fast_con = check_fast(access_points)
         if check_fast_con:
             access_points = check_fast(access_points)
             # Check if only one ap meets standards.
-            if single_ap(access_points):
-                return single_ap(access_points)
+            is_single = single_ap(access_points)   
+            if is_single:
+                finding_match = False
+                return is_single
         
         # All checks have been completed.
         # If there are any AP left, then we will connect to the AP with lowest connections.
         # If there are no AP then there are no suitable connections.
         if len(access_points) == 0:
             print("No suitable connections.")
+            finding_match = False
             return -1
         
-        if len(access_points) > 1:
-            match = final_connect(access_points)
-            return match
+        #if len(access_points) > 1:
+        match = final_connect(access_points)
+        finding_match = False
+        return match
     
 
 def parse_access_points(client, access_points):
